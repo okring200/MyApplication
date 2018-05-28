@@ -16,7 +16,7 @@ public class MainActivity extends Activity{
 
     PeopleFragment peopleFragment;
 
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {    //commit test
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
