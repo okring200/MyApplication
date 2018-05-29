@@ -1,6 +1,7 @@
 package com.example.minjena.myapplication.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,13 +11,19 @@ import android.widget.EditText;
 
 import com.example.minjena.myapplication.R;
 import com.example.minjena.myapplication.adapter.chatAdapater;
+import com.example.minjena.myapplication.model.RecyclerChat;
 import com.example.minjena.myapplication.presenter.ChatPresenter;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -24,30 +31,26 @@ import io.socket.emitter.Emitter;
 import io.socket.client.Socket;
 import io.socket.client.IO;
 
-public class ChatActivity extends Activity{
+public class ChatActivity extends Activity {
 
-    ChatPresenter mChatPresenter;
+    private ChatPresenter mChatPresenter;
+    private Bundle arg;
+    private String myidx;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private ArrayList<RecyclerChat> recyclerChatList;
     private Button btnSend;
     private EditText etChat;
     private Socket socket;
-    {
-        try{
-            socket = IO.socket("http://13.125.248.74");
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-    }
-    ArrayList<String> myDataset;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        //Bundle arg = getIntent().getExtras();
-        //arg.putString( "room", "1");
+        arg = getIntent().getExtras();
+        arg.putString( "room", "1");
+        mChatPresenter = new ChatPresenter(arg);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.chat_recycler_view);
         btnSend = (Button)findViewById(R.id.btnSend);
@@ -62,18 +65,19 @@ public class ChatActivity extends Activity{
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         //set data
-        //mChatPresenter.getChatList();
-        myDataset = new ArrayList<String>();
-        myDataset.add("안녕");
-        myDataset.add("hihi");
+        recyclerChatList = mChatPresenter.getChatList();
 
         // specify an adapter (see also next example)
-        mAdapter = new chatAdapater(myDataset);
+        myidx = arg.getString("key");
+        mAdapter = new chatAdapater(recyclerChatList,myidx);
         mRecyclerView.setAdapter(mAdapter);
-
+        try {
+            socket = IO.socket("http://13.125.248.74");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         socket.connect();
         socket.on("message", handleRevMessage);
-
         btnSend.setOnClickListener(new View.OnClickListener(){
 
             @Override
@@ -84,9 +88,17 @@ public class ChatActivity extends Activity{
     }
 
     private void sendMessage() {
-        String message = etChat.getText().toString().trim();
+        String ridx = arg.getString("rkey");
+        String idx = arg.getString("key");
+        String msg = etChat.getText().toString().trim();
+        Date date = new Date(System.currentTimeMillis());
+        //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        //sdf.format(date);
+        RecyclerChat data = new RecyclerChat(ridx,idx,msg);
         etChat.setText("");
-        addMessage(message);
+        addMessage(data);
+        Gson gson = new Gson();
+        String message = gson.toJson(data);
         socket.emit("message",message);
     }
 
@@ -98,21 +110,27 @@ public class ChatActivity extends Activity{
                 @Override
                 public void run() {
                     JSONObject data = (JSONObject) args[0];
-                    String message = "";
+                    RecyclerChat temp;
                     try {
-                        message = data.getString("message").toString();
+                        String ridx = data.getString("ridx");
+                        String fidx = data.getString("from_idx");
+                        //String d = data.getString("reg_date");
+                        //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                        //java.util.Date to = sdf.parse(d);
+                        String msg = data.getString("msg");
+                        temp = new RecyclerChat(ridx,fidx,msg);
+                        addMessage(temp);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    addMessage(message);
                 }
             });
         }
     };
 
-    private void addMessage(String message) {
-        myDataset.add(message);
-        mAdapter = new chatAdapater(myDataset);
+    private void addMessage(RecyclerChat message) {
+        recyclerChatList.add(message);
+        mAdapter = new chatAdapater(recyclerChatList,myidx);
         mAdapter.notifyItemInserted(0);
         scrollToBottom();
     }
@@ -120,4 +138,5 @@ public class ChatActivity extends Activity{
     private void scrollToBottom() {
         mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
     }
+
 }

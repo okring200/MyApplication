@@ -19,7 +19,11 @@
 
         <activity android:name=".activities.SubmitActivity"/>
         <activity android:name=".activities.MainActivity"/>
-        <activity android:name=".activities.ChatActivity"/>
+        <activity android:name=".activities.ChatActivity"
+            android:launchMode="singleInstance"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+        />
     </application>
 
 </manifest>

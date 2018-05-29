@@ -1,15 +1,17 @@
 package com.example.minjena.myapplication.model;
 
 public class RecyclerRoom {
-    private String name;
-
-    public RecyclerRoom(String name)
+    private String rname;
+    private String ridx;
+    public RecyclerRoom(String ridx, String rname)
     {
-        this.name = name;
+        this.rname = rname;
+        this.ridx = ridx;
     }
 
     public String getName()
     {
-        return name;
+        return rname;
     }
+    public String getRidx() { return ridx; }
 }

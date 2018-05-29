@@ -15,6 +15,7 @@ import com.example.minjena.myapplication.presenter.PeoplePresenter;
 public class MainActivity extends Activity{
 
     PeopleFragment peopleFragment;
+    RoomFragment roomFragment;
 
     protected void onCreate(Bundle savedInstanceState) {    //commit test12
         super.onCreate(savedInstanceState);
@@ -22,7 +23,9 @@ public class MainActivity extends Activity{
 
         Bundle arg = getIntent().getExtras();
         peopleFragment = new PeopleFragment(arg);
+        roomFragment = new RoomFragment(arg);
         peopleFragment.setArguments(arg);
+        roomFragment.setArguments(arg);
 
         BottomNavigationView bottomNavigationView = (BottomNavigationView)findViewById(R.id.mainactivity_bottom_navigation_view);
         //mPeoplePresenter.getPeopleList();
@@ -35,7 +38,7 @@ public class MainActivity extends Activity{
                         getFragmentManager().beginTransaction().replace(R.id.mainactivity_framelayout, peopleFragment).commit();
                         return true;
                     case R.id.action_room:
-                        getFragmentManager().beginTransaction().replace(R.id.mainactivity_framelayout, new RoomFragment()).commit();
+                        getFragmentManager().beginTransaction().replace(R.id.mainactivity_framelayout, roomFragment).commit();
                         return true;
                     case R.id.action_account:
                         getFragmentManager().beginTransaction().replace(R.id.mainactivity_framelayout, new AccountFragment()).commit();
