@@ -88,6 +88,9 @@ public class People {
                 }
                 //-------------------------------------------------친구목록 불러오기
                 String friends = buffer.toString();
+                ArrayList<String> resultList = new ArrayList<String>();
+                if(friends.equals(""))
+                    return resultList;
                 url = new URL("http://13.125.248.74:80/user/list");
                 ob = new JSONObject();
 
@@ -120,7 +123,6 @@ public class People {
 
                 buffer = new StringBuffer();
 
-                ArrayList<String> resultList = new ArrayList<String>();
                 String temp;
                 String[] tempList;
                 while ((line = reader.readLine()) != null) {
