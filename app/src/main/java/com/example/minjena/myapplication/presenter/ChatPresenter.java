@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.example.minjena.myapplication.model.Chat;
 import com.example.minjena.myapplication.model.RecyclerChat;
+import com.example.minjena.myapplication.model.Voice;
 
 import java.util.ArrayList;
 
@@ -19,8 +20,15 @@ public class ChatPresenter implements IChatPresenter{
         return mChat.getChatList();
     }
 
-    public void sendChat(String chat)
-    {
+    @Override
+    public String getMsg(String msg) {
+        Chat mChat = new Chat(arg);
+        return mChat.getMsg(msg);
+    }
 
+    @Override
+    public void voiceDownload(String msg, String chat) {
+        Voice mVoice = new Voice(arg, msg, chat);
+        mVoice.downAndPlay();
     }
 }

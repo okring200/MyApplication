@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -69,8 +70,16 @@ public class ChatActivity extends Activity {
 
         // specify an adapter (see also next example)
         myidx = arg.getString("key");
-        mAdapter = new chatAdapater(recyclerChatList,myidx);
+        mAdapter = new chatAdapater(recyclerChatList, myidx, new chatAdapater.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerChat temp) {
+                //Log.d("asd",temp.getMsg().toString());
+                String midx = mChatPresenter.getMsg(temp.getMsg().toString());
+                mChatPresenter.voiceDownload(midx,temp.getMsg().toString());
+            }
+        });
         mRecyclerView.setAdapter(mAdapter);
+        scrollToBottom();
         try {
             socket = IO.socket("http://13.125.248.74");
         } catch (URISyntaxException e) {
@@ -91,6 +100,8 @@ public class ChatActivity extends Activity {
         String ridx = arg.getString("rkey");
         String idx = arg.getString("key");
         String msg = etChat.getText().toString().trim();
+        if(msg.equals(""))
+            return;
         Date date = new Date(System.currentTimeMillis());
         //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         //sdf.format(date);
@@ -130,7 +141,12 @@ public class ChatActivity extends Activity {
 
     private void addMessage(RecyclerChat message) {
         recyclerChatList.add(message);
-        mAdapter = new chatAdapater(recyclerChatList,myidx);
+        mAdapter = new chatAdapater(recyclerChatList, myidx, new chatAdapater.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerChat temp) {
+                Log.d("asd",temp.getMsg());
+            }
+        });
         mAdapter.notifyItemInserted(0);
         scrollToBottom();
     }

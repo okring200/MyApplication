@@ -6,5 +6,6 @@ import java.util.ArrayList;
 
 public interface IChatPresenter {
     ArrayList<RecyclerChat> getChatList();
-    void sendChat(String chat);
+    String getMsg(String msg);
+    void voiceDownload(String msg, String chat);
 }
