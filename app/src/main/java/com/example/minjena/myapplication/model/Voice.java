@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.Properties;
+import java.util.Vector;
 
 public class Voice {
 
@@ -81,6 +82,19 @@ public class Voice {
         }
     }
 
+    public boolean fileCheck(ChannelSftp channelSftp, String path)
+    {
+        Vector res = null;
+        try {
+            res = channelSftp.ls(path);
+        } catch (SftpException e) {
+            if(e.id == channelSftp.SSH_FX_NO_SUCH_FILE)
+                return false;
+        }
+        return res != null && !res.isEmpty();
+    }
+
+
 
     private class DownloadThread extends Thread{
         String ServerUrl;
@@ -115,9 +129,15 @@ public class Voice {
                 FileInputStream fis = new FileInputStream(file);
                 channelSftp.put(fis,UFile_Name);
                 fis.close();
-
                 //파일 다운로드
                 channelSftp.cd("/home/hci1/unknown/tacotron_kr/Tacotron-2-en/tacotron_output/logs-eval/wavs");
+                while(fileCheck(channelSftp,DFile_Name) == false){
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 FileOutputStream out = new FileOutputStream(LocalPath + "/" + midx + ".wav");
                 InputStream bis = channelSftp.get(DFile_Name);
                 byte[] buffer = new byte[1024];
